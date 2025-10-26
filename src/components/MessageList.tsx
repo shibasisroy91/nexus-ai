@@ -9,14 +9,18 @@ type Message = {
 
 type Props = {
   messages?: Message[];
+  isLoading?: boolean;
 };
 
-export default function MessageList({ messages = [] }: Props) {
+export default function MessageList({
+  messages = [],
+  isLoading = false,
+}: Props) {
   const ref = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     if (ref.current) ref.current.scrollTop = ref.current.scrollHeight;
-  }, [messages]);
+  }, [messages, isLoading]);
 
   const rendered =
     messages.length > 0 ? (
@@ -39,29 +43,23 @@ export default function MessageList({ messages = [] }: Props) {
         </div>
       ))
     ) : (
-      <>
-        <div className="flex w-full justify-start">
-          <div className="max-w-xs rounded-xl bg-zinc-100 px-4 py-2 text-sm text-zinc-900 shadow-sm dark:bg-zinc-800 dark:text-zinc-100">
-            Hi — I’m Nexus. Ask me anything. This is a placeholder message
-            bubble styled for an assistant reply.
-          </div>
-        </div>
-
-        <div className="flex w-full justify-end">
-          <div className="max-w-xs rounded-xl bg-primary text-white px-4 py-2 text-sm shadow-md">
-            Thanks! How can I help you today?
-          </div>
-        </div>
-
-        <div className="mt-6 text-center text-xs text-zinc-400">
-          Messages are placeholders — interactive demo coming soon.
-        </div>
-      </>
+      <div className="text-center text-sm text-zinc-500 dark:text-zinc-400">
+        Send a message to start the conversation
+      </div>
     );
 
   return (
     <div ref={ref} className="h-full overflow-y-auto px-6 py-6">
-      <div className="flex flex-col gap-4">{rendered}</div>
+      <div className="flex flex-col gap-4">
+        {rendered}
+        {isLoading && (
+          <div className="flex w-full justify-start">
+            <div className="max-w-xs rounded-xl bg-zinc-100 px-4 py-2 text-sm text-zinc-700 shadow-sm dark:bg-zinc-800 dark:text-zinc-100">
+              <span className="italic text-zinc-500">Nexus is typing…</span>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
