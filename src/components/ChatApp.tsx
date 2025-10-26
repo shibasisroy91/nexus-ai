@@ -51,7 +51,8 @@ export default function ChatApp() {
         }
       } catch (err) {
         console.error("Failed to parse JSON response:", err);
-        replyText = "Sorry, I received an invalid response.";
+        replyText =
+          "😵 Sorry, I couldn't get a response. Please check your connection or try again later.";
       }
 
       const reply: Message = {

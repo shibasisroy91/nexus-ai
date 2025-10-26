@@ -41,7 +41,7 @@ export default function MessageList({
           }`}
         >
           <div
-            className={`max-w-xs rounded-xl px-4 py-2 text-sm shadow-sm ${
+            className={`fade-in max-w-xs rounded-xl px-4 py-2 text-sm shadow-sm ${
               m.role === "user"
                 ? "bg-primary text-zinc-900 shadow-md"
                 : "bg-zinc-100 text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100"

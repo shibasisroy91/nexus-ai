@@ -11,31 +11,50 @@ const mapRoleToGemini = (role: "user" | "assistant") => {
 };
 
 export async function POST(req: Request) {
+  type Body = { message?: string; sessionId?: string };
+  let body: Body;
   try {
-    const { message: userMessageContent, sessionId } = await req.json();
+    body = await req.json();
+  } catch (jsonErr) {
+    console.error("Invalid JSON body for /api/chat POST", jsonErr);
+    return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+  }
 
-    if (!userMessageContent || !sessionId) {
-      return NextResponse.json(
-        { error: "Message and sessionId is required" },
-        { status: 400 }
-      );
-    }
+  const userMessageContent = body?.message;
+  const sessionId = body?.sessionId;
 
-    const recentMessages = await db
-      .select({
-        role: messageSchema.role,
-        content: messageSchema.content,
-      })
+  if (!userMessageContent || !sessionId) {
+    return NextResponse.json(
+      { error: "`message` and `sessionId` are required in the request body" },
+      { status: 400 }
+    );
+  }
+
+  // 1) Fetch recent messages from DB (catch DB errors separately)
+  let recentMessages: { role: "user" | "assistant"; content: string }[] = [];
+  try {
+    recentMessages = await db
+      .select({ role: messageSchema.role, content: messageSchema.content })
       .from(messageSchema)
       .where(eq(messageSchema.sessionId, sessionId))
       .orderBy(desc(messageSchema.createdAt))
       .limit(10);
+  } catch (dbErr) {
+    console.error("DB query failed for sessionId", sessionId, dbErr);
+    return NextResponse.json(
+      { error: "Failed to retrieve chat history" },
+      { status: 500 }
+    );
+  }
 
-    const chatHistory = recentMessages.reverse().map((msg) => ({
-      role: mapRoleToGemini(msg.role),
-      parts: [{ text: msg.content }],
-    })) as Content[];
+  const chatHistory = recentMessages.reverse().map((msg) => ({
+    role: mapRoleToGemini(msg.role),
+    parts: [{ text: msg.content }],
+  })) as Content[];
 
+  // 2) Call Gemini API (catch errors specifically and return 502 Bad Gateway on external failure)
+  let reply = "";
+  try {
     const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
     const chat = model.startChat({
       history: chatHistory,
@@ -45,8 +64,21 @@ export async function POST(req: Request) {
     });
     const result = await chat.sendMessage(userMessageContent);
     const response = await result.response;
-    const reply = response.text();
+    reply = response.text();
+  } catch (apiErr) {
+    console.error("Gemini API call failed", {
+      sessionId,
+      userMessageContent,
+      apiErr,
+    });
+    return NextResponse.json(
+      { error: "AI service unavailable; please try again later" },
+      { status: 502 }
+    );
+  }
 
+  // 3) Persist messages, but don't fail the whole request if persistence fails — log and return a warning
+  try {
     await Promise.all([
       db.insert(messageSchema).values({
         sessionId: sessionId,
@@ -59,13 +91,18 @@ export async function POST(req: Request) {
         content: reply,
       }),
     ]);
-
-    return NextResponse.json({ response: reply });
-  } catch (error) {
-    console.log("Error calling Gemini API", error);
+  } catch (persistErr) {
+    console.error(
+      "Failed to persist messages for session",
+      sessionId,
+      persistErr
+    );
+    // Return the AI reply but include a non-sensitive warning
     return NextResponse.json(
-      { error: "Failed to fetch AI response" },
-      { status: 500 }
+      { response: reply, warning: "Failed to save conversation to database" },
+      { status: 200 }
     );
   }
+
+  return NextResponse.json({ response: reply });
 }
