@@ -1,8 +1,8 @@
-import { GoogleGenerativeAI, Content, Part } from "@google/generative-ai";
-import { NextRequest, NextResponse } from "next/server";
+import { GoogleGenerativeAI, Content } from "@google/generative-ai";
+import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { messages as messageSchema } from "@/lib/db/schema";
-import { desc, eq, sql } from "drizzle-orm";
+import { desc, eq, asc } from "drizzle-orm";
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
 
@@ -117,4 +117,47 @@ export async function POST(req: Request) {
   }
 
   return NextResponse.json({ response: reply });
+}
+
+// GET /api/chat?sessionId=... -> returns stored messages for the session
+export async function GET(req: Request) {
+  try {
+    const url = new URL(req.url);
+    const sessionId = url.searchParams.get("sessionId");
+    if (!sessionId) {
+      return NextResponse.json(
+        { error: "`sessionId` query parameter is required" },
+        { status: 400 }
+      );
+    }
+
+    const rows = await db
+      .select({
+        id: messageSchema.id,
+        role: messageSchema.role,
+        content: messageSchema.content,
+        createdAt: messageSchema.createdAt,
+      })
+      .from(messageSchema)
+      .where(eq(messageSchema.sessionId, sessionId))
+      .orderBy(asc(messageSchema.createdAt));
+
+    const messages = rows.map((r) => ({
+      id: String((r as any).id),
+      role: r.role,
+      content: r.content,
+      createdAt:
+        (r as any).createdAt instanceof Date
+          ? (r as any).createdAt.toISOString()
+          : (r as any).createdAt,
+    }));
+
+    return NextResponse.json({ messages });
+  } catch (err) {
+    console.error("Failed to fetch messages", err);
+    return NextResponse.json(
+      { error: "Failed to fetch messages" },
+      { status: 500 }
+    );
+  }
 }

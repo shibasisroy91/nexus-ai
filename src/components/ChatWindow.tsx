@@ -7,7 +7,7 @@ type Props = {
 
 export default function ChatWindow({ children }: Props) {
   return (
-    <div className="w-full max-w-3xl mx-auto flex h-[76vh] flex-col rounded-2xl bg-linear-to-tr from-white/60 to-zinc-50/70 p-1 shadow-2xl backdrop-blur-md">
+    <div className="w-full max-w-4xl mx-auto flex h-[82vh] flex-col rounded-2xl bg-linear-to-tr from-white/60 to-zinc-50/70 p-1 shadow-2xl backdrop-blur-md">
       <div className="flex w-full flex-1 flex-col overflow-hidden rounded-2xl bg-white">
         <header className="flex items-center justify-between gap-4 border-b border-zinc-100 px-6 py-4">
           <div className="flex items-center gap-3">

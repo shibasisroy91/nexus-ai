@@ -1,5 +1,7 @@
 "use client";
 import React, { useEffect, useRef } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 type Message = {
   id: string;
@@ -31,6 +33,49 @@ export default function MessageList({
     }
   }, [messages, isLoading]);
 
+  // Render message text using react-markdown for basic markdown support (GFM).
+  const renderText = (text: string) => {
+    if (!text) return null;
+    return (
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm]}
+        components={{
+          p: ({ children }: { children?: React.ReactNode }) => (
+            <p className="mb-2 leading-relaxed whitespace-pre-wrap">
+              {children}
+            </p>
+          ),
+          li: ({ children }: { children?: React.ReactNode }) => (
+            <li className="ml-4 list-disc">{children}</li>
+          ),
+          code: ({
+            inline,
+            children,
+          }: {
+            inline?: boolean;
+            children?: React.ReactNode;
+          }) =>
+            inline ? (
+              <code className="bg-zinc-100 px-1 py-0.5 rounded text-sm font-mono">
+                {children}
+              </code>
+            ) : (
+              <code className="bg-zinc-100 p-1 rounded text-sm block font-mono">
+                {children}
+              </code>
+            ),
+          pre: ({ children }: { children?: React.ReactNode }) => (
+            <pre className="bg-zinc-100 p-3 rounded text-sm overflow-auto">
+              {children}
+            </pre>
+          ),
+        }}
+      >
+        {text}
+      </ReactMarkdown>
+    );
+  };
+
   const rendered =
     messages.length > 0 ? (
       messages.map((m) => (
@@ -41,13 +86,13 @@ export default function MessageList({
           }`}
         >
           <div
-            className={`fade-in max-w-xs rounded-xl px-4 py-2 text-sm shadow-sm ${
+            className={`fade-in max-w-[80%] rounded-xl px-4 py-2 text-sm shadow-sm ${
               m.role === "user"
                 ? "bg-primary text-zinc-900 shadow-md"
                 : "bg-zinc-100 text-zinc-900"
             }`}
           >
-            {m.text}
+            {renderText(m.text)}
           </div>
         </div>
       ))
@@ -63,7 +108,7 @@ export default function MessageList({
         {rendered}
         {isLoading && (
           <div className="flex w-full justify-start">
-            <div className="max-w-xs rounded-xl bg-zinc-100 px-4 py-2 text-sm text-zinc-700 shadow-sm">
+            <div className="max-w-[80%] rounded-xl bg-zinc-100 px-4 py-2 text-sm text-zinc-700 shadow-sm">
               <span className="italic text-zinc-500">Nexus is typing…</span>
             </div>
           </div>

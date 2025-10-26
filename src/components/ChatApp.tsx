@@ -27,6 +27,49 @@ export default function ChatApp() {
     setSessionId(storedSessionId);
   }, []);
 
+  // Fetch saved messages for the session when sessionId becomes available
+  useEffect(() => {
+    if (!sessionId) return;
+    let cancelled = false;
+    const load = async () => {
+      try {
+        setIsLoading(true);
+        const res = await fetch(
+          `/api/chat?sessionId=${encodeURIComponent(sessionId)}`
+        );
+        if (!res.ok) {
+          console.warn("Failed to load messages:", await res.text());
+          return;
+        }
+        const data = await res.json();
+        const loaded: Message[] = (data.messages ?? []).map((m: unknown) => {
+          const mm = m as {
+            id: unknown;
+            role: "user" | "assistant";
+            content: unknown;
+          };
+          return {
+            id: String(mm.id),
+            role: mm.role,
+            text:
+              typeof mm.content === "string"
+                ? mm.content
+                : String(mm.content ?? ""),
+          };
+        });
+        if (!cancelled) setMessages(loaded);
+      } catch (err) {
+        console.error("Failed to load messages", err);
+      } finally {
+        if (!cancelled) setIsLoading(false);
+      }
+    };
+    load();
+    return () => {
+      cancelled = true;
+    };
+  }, [sessionId]);
+
   const send = async (text: string) => {
     const userMsg: Message = { id: String(Date.now()), role: "user", text };
     setMessages((s) => [...s, userMsg]);
