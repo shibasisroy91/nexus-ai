@@ -1,8 +1,9 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import ChatWindow from "./ChatWindow";
 import MessageList from "./MessageList";
 import MessageInput from "./MessageInput";
+import { v4 as uuid4 } from "uuid";
 
 type Message = {
   id: string;
@@ -10,9 +11,21 @@ type Message = {
   text: string;
 };
 
+const SESSION_ID_KEY = "nexus-ai-session-id";
+
 export default function ChatApp() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [sessionId, setSessionId] = useState<string | null>(null);
+
+  useEffect(() => {
+    let storedSessionId = localStorage.getItem(SESSION_ID_KEY);
+    if (!storedSessionId) {
+      storedSessionId = uuid4();
+      localStorage.setItem(SESSION_ID_KEY, storedSessionId);
+    }
+    setSessionId(storedSessionId);
+  }, []);
 
   const send = async (text: string) => {
     const userMsg: Message = { id: String(Date.now()), role: "user", text };
@@ -23,11 +36,8 @@ export default function ChatApp() {
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: text }),
+        body: JSON.stringify({ message: text, sessionId: sessionId }),
       });
-
-      // Log for debugging
-      console.log("chat POST status:", res.status);
 
       let replyText = "";
       try {

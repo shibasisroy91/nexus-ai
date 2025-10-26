@@ -17,9 +17,18 @@ export default function MessageList({
   isLoading = false,
 }: Props) {
   const ref = useRef<HTMLDivElement | null>(null);
+  const bottomRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     if (ref.current) ref.current.scrollTop = ref.current.scrollHeight;
+    // also ensure newest message is visible using a sentinel for smooth scrolling
+    if (bottomRef.current) {
+      try {
+        bottomRef.current.scrollIntoView({ behavior: "smooth", block: "end" });
+      } catch {
+        /* ignore if browser doesn't support smooth option */
+      }
+    }
   }, [messages, isLoading]);
 
   const rendered =
@@ -59,6 +68,7 @@ export default function MessageList({
             </div>
           </div>
         )}
+        <div ref={bottomRef} aria-hidden />
       </div>
     </div>
   );
