@@ -23,7 +23,7 @@ export default function MessageInput({ onSend, disabled = false }: Props) {
         aria-label="Type a message"
         value={value}
         onChange={(e) => setValue(e.target.value)}
-        className={`flex-1 rounded-full border border-zinc-100 bg-transparent px-4 py-2 text-sm outline-none placeholder:text-zinc-400 dark:border-zinc-800 ${
+        className={`flex-1 rounded-full border border-zinc-100 bg-transparent px-4 py-2 text-sm outline-none placeholder:text-zinc-400 text-zinc-900 ${
           disabled ? "opacity-60 cursor-not-allowed" : ""
         }`}
         placeholder="Type a message..."

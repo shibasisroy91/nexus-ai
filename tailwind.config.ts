@@ -8,6 +8,9 @@ type ExtendedConfig = Config & {
 };
 
 const config: ExtendedConfig = {
+  // Use class-based dark mode so we don't automatically follow the user's OS setting.
+  // This prevents Tailwind's `dark:` utilities from applying unless a `.dark` class is added.
+  darkMode: "class",
   content: [
     "./pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
@@ -21,9 +24,9 @@ const config: ExtendedConfig = {
   plugins: [
     require("daisyui"), // Add this line
   ],
-  // Optional: DaisyUI configuration (themes, etc.)
+  // DaisyUI configuration: restrict to light theme only
   daisyui: {
-    themes: ["light", "dark"], // You can specify which themes you want to use
+    themes: ["light"],
   },
 };
 export default config;

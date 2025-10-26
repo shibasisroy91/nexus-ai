@@ -7,29 +7,25 @@ type Props = {
 
 export default function ChatWindow({ children }: Props) {
   return (
-    <div className="w-full max-w-3xl mx-auto flex h-[76vh] flex-col rounded-2xl bg-linear-to-tr from-white/60 to-zinc-50/70 p-1 shadow-2xl backdrop-blur-md dark:from-[#0b1220]/60 dark:to-[#071122]/60">
-      <div className="flex w-full flex-1 flex-col overflow-hidden rounded-2xl bg-white dark:bg-[#071122]">
-        <header className="flex items-center justify-between gap-4 border-b border-zinc-100 px-6 py-4 dark:border-zinc-800">
+    <div className="w-full max-w-3xl mx-auto flex h-[76vh] flex-col rounded-2xl bg-linear-to-tr from-white/60 to-zinc-50/70 p-1 shadow-2xl backdrop-blur-md">
+      <div className="flex w-full flex-1 flex-col overflow-hidden rounded-2xl bg-white">
+        <header className="flex items-center justify-between gap-4 border-b border-zinc-100 px-6 py-4">
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 rounded-full bg-linear-to-tr from-primary to-secondary p-[0.5]"></div>
             <div>
-              <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
-                Nexus AI
-              </h3>
-              <p className="text-xs text-zinc-500 dark:text-zinc-400">
+              <h3 className="text-sm font-semibold text-zinc-900">Nexus AI</h3>
+              <p className="text-xs text-zinc-500">
                 AI assistant — responsive & helpful
               </p>
             </div>
           </div>
-          <div className="text-xs text-zinc-500 dark:text-zinc-400">Active</div>
+          <div className="text-xs text-zinc-500">Active</div>
         </header>
 
         <div className="flex-1 overflow-hidden">{children}</div>
 
-        <footer className="border-t border-zinc-100 px-6 py-4 dark:border-zinc-800">
-          <p className="text-xs text-zinc-500 dark:text-zinc-400">
-            Nexus AI ©️ 2025
-          </p>
+        <footer className="border-t border-zinc-100 px-6 py-4">
+          <p className="text-xs text-zinc-500">Nexus AI ©️ 2025</p>
         </footer>
       </div>
     </div>

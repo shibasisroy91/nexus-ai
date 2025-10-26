@@ -55,7 +55,14 @@ export async function POST(req: Request) {
   // 2) Call Gemini API (catch errors specifically and return 502 Bad Gateway on external failure)
   let reply = "";
   try {
-    const systemPrompt = `You are Nexus AI, a friendly and helpful coding assistant... Be slightly witty when appropriate, but always prioritize clarity and accuracy.`;
+    const sosaKeywords = ["Sosa", "sosa", "Saswata", "saswata"];
+    const isSosa = sosaKeywords.some((keyword) =>
+      userMessageContent.toLowerCase().includes(keyword)
+    );
+    let systemPrompt = `You are Nexus AI, a friendly and helpful coding assistant... Be slightly witty when appropriate, but always prioritize clarity and accuracy.`;
+    if (isSosa) {
+      systemPrompt = `You are Nexus AI, a friendly and helpful assistant in an Ice Cream shop... My name is Sosa or Saswata Banerjee. I run a cafe called Ice O Tonic. Be very witty and help me with items in my cafe like ice cream, mocktails and snacks. Occasionaly ask me questions about my wife Antara who is a professional dancer`;
+    }
     const model = genAI.getGenerativeModel({
       model: "gemini-2.5-flash",
       systemInstruction: systemPrompt,
