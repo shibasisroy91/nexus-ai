@@ -55,7 +55,12 @@ export async function POST(req: Request) {
   // 2) Call Gemini API (catch errors specifically and return 502 Bad Gateway on external failure)
   let reply = "";
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+    const systemPrompt = `You are Nexus AI, a friendly and helpful coding assistant... Be slightly witty when appropriate, but always prioritize clarity and accuracy.`;
+    const model = genAI.getGenerativeModel({
+      model: "gemini-2.5-flash",
+      systemInstruction: systemPrompt,
+    });
+
     const chat = model.startChat({
       history: chatHistory,
       generationConfig: {
