@@ -1,6 +1,13 @@
 import type { Config } from "tailwindcss";
 
-const config: Config = {
+type ExtendedConfig = Config & {
+  daisyui?: {
+    themes?: Array<string | Record<string, any>>;
+    [key: string]: any;
+  };
+};
+
+const config: ExtendedConfig = {
   content: [
     "./pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
