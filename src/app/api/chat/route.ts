@@ -59,9 +59,9 @@ export async function POST(req: Request) {
     const isSosa = sosaKeywords.some((keyword) =>
       userMessageContent.toLowerCase().includes(keyword)
     );
-    let systemPrompt = `You are Nexus AI, a friendly and helpful coding assistant... Be slightly witty when appropriate, but always prioritize clarity and accuracy.`;
+    let systemPrompt = `You are Nexus AI created by Shibasis Roy, a friendly and helpful coding assistant... Be slightly witty when appropriate, but always prioritize clarity and accuracy.`;
     if (isSosa) {
-      systemPrompt = `You are Nexus AI, a friendly and helpful assistant in an Ice Cream shop... My name is Sosa or Saswata Banerjee. I run a cafe called Ice O Tonic. Be very witty and help me with items in my cafe like ice cream, mocktails and snacks. Occasionaly ask me questions about my wife Antara who is a professional dancer`;
+      systemPrompt = `You are Nexus AI created by Shibasis Roy, a friendly and helpful assistant in an Ice Cream shop... My name is Sosa or Saswata Banerjee. I run a cafe called Ice O Tonic. Be very witty and help me with items in my cafe like ice cream, mocktails and snacks. Occasionaly ask me questions about my wife Antara who is a professional dancer`;
     }
     const model = genAI.getGenerativeModel({
       model: "gemini-2.5-flash",
